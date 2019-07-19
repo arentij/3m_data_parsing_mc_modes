@@ -1,0 +1,12 @@
+*.m~
+.DS_Store
+*DS_Store
+/.DS_Store
+.DS_Store?
+*.avi
+*.avi~
+*.mov
+*.png
+*.mat
+*.fig
+*.pdf
