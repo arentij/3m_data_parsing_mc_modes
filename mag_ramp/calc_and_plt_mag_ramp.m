@@ -172,7 +172,7 @@ if plotting
             mkdir('lm')
     end
     
-    for ks = [1:24]
+    for ks = [2,5,7,12]
         [lt, mt] = k2lm(ks);
         if mt < 0
             continue

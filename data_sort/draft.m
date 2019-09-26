@@ -1,4 +1,5 @@
-I = 1;
-f_o = 1;
-
-Le = 16/15*I*10^-4/(1.256e-6*900)^0.5/2/pi/1.03/f_o
+for i = 1:length(results)
+    if results{1, i}{1, 1} == '102516' 
+        results{1, i}{1, 1}
+    end
+end

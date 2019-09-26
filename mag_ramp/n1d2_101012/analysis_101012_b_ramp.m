@@ -1,6 +1,6 @@
 
-import = 0;
-recalc = 0;
+import = 1;
+recalc = 1;
 plotting = 1;
 save_folder = '';
 

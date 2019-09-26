@@ -18,7 +18,9 @@ for k = 3: length(subFolders)
     filename_control = [way  subFolders(k).name  '/control.log'];
     % setting up the name of magnet.log file with location
     filename_magnet  = [way  subFolders(k).name  '/magnet.log'];
-    
+%     if  subFolders(k).name(6) ~= '6'
+%         continue
+%     end
     % if there are logs
     if exist(filename_control, 'file') == 2 && exist(filename_magnet, 'file') == 2
 

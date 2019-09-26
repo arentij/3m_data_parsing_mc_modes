@@ -1,4 +1,4 @@
-function [tb1, tb2] = find_x_hz_bias(day,f_o,t0)
+function [tb1, tb2] = find_x_hz_bias(day,f_o,tf1,tf2,t0)
 % opens log files and finds tb1 and tb2 that should meet some criteria of
 % bias time: tb2-tb1 > 250 (tau) (seconds), mean(B) < 1, abs(fo) > 3.9 
 % and after t0
@@ -20,12 +20,20 @@ fo =  data_control(:,19)/8.33;   % oiter freq
 
 mg = data_magnet(:,3);      % magnetic field
 
-contr_log_i0 = find(tc > tm(1), 1, 'first');
-contr_log_iend = find(tc > tm(end)-5, 1, 'first');
+% adding zeros to mg on the leaft and on the right sides of the file so
+% they could be used as bias too, assuming it is 10 Hz sampling rate
+tm_add_before = (tm(1)-200:0.1:tm(1)-0.1)';
+tm_add_after = (tm(end) + 0.1:0.1:tm(end)+200)';
+tm = [tm_add_before; tm; tm_add_after];
+mg = [zeros(size(tm_add_before));mg; zeros(size(tm_add_after))];
+
+
+contr_log_i0 = find(tc > max(tf1,tm(1)+1), 1, 'first');
+contr_log_iend = find(tc > min(tf2-5,tm(end)-5), 1, 'first');
 
 
 
-tau = 150;
+tau = 40;
 toler = 0.75/tau;
 i_tc = contr_log_i0;
 
@@ -35,13 +43,13 @@ while i_tc < contr_log_iend
     % goal freq of outer space at least
     goal_f = f_o;
     % if the current f_o is almost goal_f
-    if abs(fo(i_tc) -   goal_f) < 0.2 && tc(i_tc) > t0
+    if abs(fo(i_tc) -   goal_f) < 0.025 && tc(i_tc) > t0
         % if for the next tau points it's close to be the same
         if abs(mean(fo(i_tc:i_tc+tau) - fo(i_tc) )) < toler
             
             % define starting of a chunk index (i0) as the current index (i_tc)
             i0 = i_tc;                
-            fo0 = fo(i0); % and fix rotation rate 
+            fo0 = fo(i0+25); % and fix rotation rate 
             
             % lets walk down the ii to almost the end
             for ii = i0+tau:10:length(data_control)-tau
@@ -62,7 +70,7 @@ while i_tc < contr_log_iend
                     j1 = find(tm > t_i1, 1, 'first');
                     
                     % set the goal length of the bias file
-                    bias_l = 1600;
+                    bias_l = 650;
                     
                     % lets walk this way to check if for the next some
                     % number of points if the current in the coil/s is zero
@@ -87,16 +95,16 @@ end
 if t0~=0
     ['f_o = ' num2str(f_o) ' time without mag field after t0 was not found, trying before t0']
 
-    [tb1, tb2] = find_x_hz_bias(day,f_o);
+    [tb1, tb2] = find_x_hz_bias(day,f_o,tf1,tf2);
 end
 
-['f_o = ' num2str(f_o) ' time without mag field was not found anywhere in time, trying f_o=' num2str(f_o+0.1)]
+['f_o = ' num2str(f_o) ' time without mag field was not found anywhere in time, trying f_o=' num2str(f_o+0.05)]
 if f_o > 0
-    f_o = -4.1;
+    f_o = f_o-4.1;
     
 end
 
-[tb1, tb2] = find_x_hz_bias(day,f_o+0.1);
+[tb1, tb2] = find_x_hz_bias(day,f_o+0.05,tf1,tf2);
 
 end
 

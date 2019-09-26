@@ -1,10 +1,11 @@
+% Artur Perevalov 2019
 % script made to swipe through a DB with information about 3M experiments 
 
 L = size(results,2);    % amount of all runs in the DB
 list_ind = [];          % list of indexes of runs passing your criteria
 rossbys = [];           % list of rossbys of the runs passing your criteria 
 days = [];              % list of days of the runs passing your criteria 
-
+load('data3m_all_ro_mag.mat');
 % going over all the runs
 for i = 1:L
     %     A hint to know which 
@@ -14,23 +15,27 @@ for i = 1:L
     ro = results{1,i}{1,2}(1);
     fi = results{1,i}{1,2}(2);
     fo = results{1,i}{1,2}(3);
-
-    if 1 %fo  < -3.5    % if it passes two first criterias and it's not -1
+    
+    if 1 % fi ==0 && fo ==0 %|| abs(ro) < 0.1  || abs(ro+1) < 0.1 % results{1,4}{1,1}(5:6) == "16" %ro == 0 || abs(ro+1) < 0.02      % if it passes two first criterias and it's not -1
         
-        if 1 %results{1,i}{1,1} == '100412'    % put an additional criteria here if you want
+        if 1 % results{1,i}{1,1} == "032416"    % put an additional criteria here if you want
             mag_data = results{1,i}{1,3};   % saving I(t) 
             Lm = length(mag_data);          % length of mag data
             gap = 30*10;                    % minimum amount of points to satisfy criteria of 30 seconds of stable mag field x10 (sampling rate)
             gap = min(Lm,gap);              % making sure gap is no longer than size of the data
 
-            for j = 1:100:Lm-gap             % checking only every second
+            for j = 1:10:Lm-gap             % checking only every second
 
                 goal_I = 0; % the mag field we want to find in the record
-                if mean(abs(mag_data(j:j+gap) - goal_I)) < 30  % if average error is less than one => pass criteria
+                if mean((mag_data(j:j+gap) - goal_I)) > 0 % if average error is less than one => pass criteria
 
                     days = [days;  results{1,i}{1}];            % adding the day of the run to our list
                     rossbys = [rossbys, results{1,i}{1,2}(1)];  % adding Ro
                     list_ind = [list_ind, i];                   % adding index of the run to the list
+%                     i
+%                     T1 = results{1, i}{1, 2}(4)          % approximate time of the event
+%                     ro
+% %                     j
                     break % exiting the loop cuz we found what we were looking for
                 end
             end
